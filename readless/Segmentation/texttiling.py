@@ -98,3 +98,48 @@ def tokenize_string(input_string, w):
     unique_tokens = [word for word in set(tokens) if word not in stop_words] 
 
     return (token_sequences, unique_tokens, paragraph_breaks)
+
+def block_score(k, token_sequence, unique_tokens):
+    """
+    Computes the similarity scores for adjacent blocks of token sequences.
+    Args:
+        k: the block size
+        token_seq_ls: list of token sequences, each of the same length
+        unique_tokens: A set of all unique words used in the text.
+    Returns:
+        list of block scores from gap k through gap (len(token_sequence)-k-2) both inclusive.
+    Raises:
+        None.
+    """
+    score_block = []
+    before_count = Counter()
+    after_count = Counter()
+
+    # calculate score for each gap with at least k token sequences on each side
+    for gap_index in range(1, len(token_sequence)):
+        current_k = min(gap_index, k, len(token_sequence) - gap_index)
+        before_block = token_sequence[gap_index - current_k : gap_index]
+        after_block = token_sequence[gap_index : gap_index + current_k]
+        
+        for j in xrange(current_k):
+            before_count = before_count + Counter(token_sequence[gap_index + j - current_k])
+            after_count = after_count + Counter(token_sequence[gap_index + j])
+        
+        # calculate and store score
+        numerator = 0.0
+        before_sum = 0.0
+        after_sum = 0.0
+
+        for token in unique_tokens:
+            numerator = numerator + (before_count[token] * after_count[token])
+            before_sum = before_sum + (before_count[token] ** 2)
+            after_sum = after_sum + (after_count[token] ** 2)
+
+        denominator = sqrt(before_sum * after_sum)
+
+        if denominator == 0:
+            denominator = 1
+
+        score_block.append(numerator / denominator)
+
+    return score_block
