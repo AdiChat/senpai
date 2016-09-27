@@ -99,6 +99,49 @@ def tokenize_string(input_string, w):
 
     return (token_sequences, unique_tokens, paragraph_breaks)
 
+def vocabulary_introduction(token_sequences, w):
+  """
+  Computes lexical score for the gap between pairs of text sequences.
+  It starts assigning scores after the first sequence.
+
+  Args:
+    w: size of a sequence
+
+  Returns:
+    list of scores where scores[i] corresponds to the score at gap position i that is the score after sequence i.
+
+  Raises:
+    None
+  """
+  # stores the tokens in the previous sequence
+  new_words1 = set()
+  # stores the tokens in the next sequence
+  new_words2 = set(token_sequences[0])
+  # score[i] corresponds to gap position i
+  scores = []
+  w2 = w * 2
+
+  for i in xrange(1,len(token_sequences)-1):
+    # new words to the left of the gap
+    new_words_1 = set(token_sequences[i-1]).difference(new_words1)
+
+    # new words to the right of the gap
+    new_words_2 = set(token_sequences[i+1]).difference(new_words2)
+
+    # calculate score and update score array
+    score = (len(new_words_1) + len(new_words_2)) / w2
+    scores.append(score)
+
+    # update sets that keep track of new words
+    new_words1 = new_words1.union(token_sequences[i-1])
+    new_words2 = new_words2.union(token_sequences[i+1])
+
+  # special case on last element
+  b1 = len(set(token_sequences[len(token_sequences)-1]).difference(new_words1))
+  scores.append(b1/w2)
+  return scores
+
+
 def block_score(k, token_sequence, unique_tokens):
     """
     Computes the similarity scores for adjacent blocks of token sequences.
