@@ -186,3 +186,21 @@ def block_score(k, token_sequence, unique_tokens):
         score_block.append(numerator / denominator)
 
     return score_block
+
+def getDepthCutoff(lexScores, liberal=True):
+    """
+    Compute the cutoff for depth scores above which gaps are considered boundaries.
+
+    Args:
+        lexScores: list of lexical scores for each token-sequence gap
+        liberal: True IFF liberal criterion will be used for determining cutoff
+
+    Returns:
+        A float representing the depth cutoff score
+        
+    Raises:
+        None
+    """
+    mean = np.mean(lexScores)
+    stdev = np.std(lexScores)
+    return mean - stdev if liberal else mean - stdev / 2
