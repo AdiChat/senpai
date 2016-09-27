@@ -306,10 +306,7 @@ def writeTextTiles(boundaries, pLocs, inputText, outfile):
     #assert len(paragraphs) == len(pLocs) + 1
     splitIndices = [pLocs.index(b) + 1 for b in boundaries]
 
-    # uncomment this if you want the text to actually be written
-    
     startIndex = 0
-
     # append section between subtopic boundaries as new TextTile
     for i in splitIndices:
         textTiles.append(paragraphs[startIndex:i])
@@ -325,3 +322,48 @@ def writeTextTiles(boundaries, pLocs, inputText, outfile):
             f.write(paragraph + '\n\n')
       
     return splitIndices
+
+def run(outfile, data, w, k):
+    """
+    Helper function that runs the TextTiling on the entire corpus
+    for a given set of parameters w and k, and writes the average 
+    statistics to outfile. The corpus is assumed to live in the "articles"
+    directory, which must be in the same folder as this python file.
+    Args:
+        outfile: the name of the output file
+        w: pseudo-sentence size.
+        k: length of window as defined in the paper.
+        data: input string
+    Returns:
+        None
+    Raises:
+        None.
+    """
+    out = open(outfile, 'a')
+    out.write("w = " + str(w) + ", k = " + str(k) + "\n")
+
+    counter = 0
+    print "processing input " 
+               
+    text = data;
+
+    # 1) do our block comparison and 2) vocabulary introduction
+    token_sequences, unique_tokens, paragraph_breaks = tokenize_string(text, w)
+    out1 = open("outfile1.txt", 'a')
+    for tile in token_sequences:
+        out1.write("\n----------------------------------------------------------------------------------------\n")
+        out1.write("\nNEW SEQUENCE\n")
+        for tile1 in tile:
+            out1.write(tile1)
+            out1.write(" ; ")
+            
+    scores1 = block_score(k, token_sequences, unique_tokens)
+    scores2 = vocabulary_introduction(token_sequences, w)
+    boundaries1 = getBoundaries(scores1, paragraph_breaks, w)
+    boundaries2 = getBoundaries(scores2, paragraph_breaks, w)
+    pred_breaks1 = writeTextTiles(boundaries1, paragraph_breaks, text, outfile)
+    pred_breaks2 = writeTextTiles(boundaries2, paragraph_breaks, text, outfile)
+
+    num_pgraphs = len(paragraph_breaks)
+    boundaries1 = getBoundaries(scores1, paragraph_breaks, w)
+    writeTextTiles(boundaries1, paragraph_breaks, text, "outfile.txt")
