@@ -280,3 +280,48 @@ def getBoundaries(lexScores, pLocs, w):
         parBoundaries.add(min(pLocs, key=lambda b: abs(b - tokBoundaries[i])))
 
     return sorted(list(parBoundaries))
+
+def writeTextTiles(boundaries, pLocs, inputText, outfile):
+    """
+    Get TextTiles in the input text based on paragraph locations and boundaries.
+    Args:
+        boundaries: list of paragraph locations where subtopic boundaries occur
+        pLocs: list of token indices such that paragraph breaks occur after them
+        inputText: a string of the initial (unsanitized) text
+    Returns:
+        A list of indicies of section breaks. Index i will be in this list if
+        there is a topic break after the ith paragraph. 
+    Raises:
+        None
+    """
+    textTiles = []
+    paragraphs = [s.strip() for s in inputText.splitlines()]
+
+    paragraphs = [s for s in paragraphs if s != ""]
+
+    print len(paragraphs)
+    #print paragraphs
+    print len(pLocs)
+
+    #assert len(paragraphs) == len(pLocs) + 1
+    splitIndices = [pLocs.index(b) + 1 for b in boundaries]
+
+    # uncomment this if you want the text to actually be written
+    
+    startIndex = 0
+
+    # append section between subtopic boundaries as new TextTile
+    for i in splitIndices:
+        textTiles.append(paragraphs[startIndex:i])
+        startIndex = i
+    # tack on remaining paragraphs in last subtopic
+    textTiles.append(paragraphs[startIndex:])
+    
+    f = open(outfile, 'w')
+    for i, textTile in enumerate(textTiles):
+        f.write('SUB-TOPIC:' + str(i+1) + '\n')
+        f.write('----------\n\n')
+        for paragraph in textTile:
+            f.write(paragraph + '\n\n')
+      
+    return splitIndices
