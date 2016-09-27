@@ -197,10 +197,37 @@ def getDepthCutoff(lexScores, liberal=True):
 
     Returns:
         A float representing the depth cutoff score
-        
+
     Raises:
         None
     """
     mean = np.mean(lexScores)
     stdev = np.std(lexScores)
     return mean - stdev if liberal else mean - stdev / 2
+
+def getDepthSideScore(lexScores, currentGap, left):
+    """
+    Computes the depth score for the specified side of the specified gap
+    Args:
+        lexScores: list of lexical scores for each token-sequence gap
+        currentGap: index of gap for which to get depth side score
+        left: True IFF the depth score for left side is desired
+    Returns:
+        A float representing the depth score for the specified side and gap,
+        calculated by finding the "peak" on the side of the gap and returning
+        the difference between the lexical scores of the peak and gap.
+    Raises:
+        None
+    """
+    depthScore = 0
+    i = currentGap
+    # continue traversing side while possible to find new peak
+    while lexScores[i] - lexScores[currentGap] >= depthScore:
+        # update depth score based on new peak
+        depthScore = lexScores[i] - lexScores[currentGap]
+        # go either left or right depending on specification
+        i = i - 1 if left else i + 1
+        # do not go beyond bounds of gap!
+        if (i < 0 and left) or (i == len(lexScores) and not left):
+            break
+    return depthScore
