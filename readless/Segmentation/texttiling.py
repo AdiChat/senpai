@@ -231,3 +231,27 @@ def getDepthSideScore(lexScores, currentGap, left):
         if (i < 0 and left) or (i == len(lexScores) and not left):
             break
     return depthScore
+
+def getGapBoundaries(lexScores):
+    """
+    Get the gaps to be considered as boundaries based on gap lexical scores
+    Args:
+        lexScores: list of lexical scores for each token-sequence gap
+    Returns:
+        A list of gaps (identified by index) that are considered boundaries.
+    Raises:
+        None
+    """
+    boundaries = []
+    cutoff = getDepthCutoff(lexScores)
+
+    for i, score in enumerate(lexScores):
+        # find maximum depth to left and right
+        depthLeftScore = getDepthSideScore(lexScores, i, True)
+        depthRightScore = getDepthSideScore(lexScores, i, False)
+
+        # add gap to boundaries if depth score beyond threshold
+        depthScore = depthLeftScore + depthRightScore
+        if depthScore >= cutoff:
+            boundaries.append(i)
+    return boundaries
