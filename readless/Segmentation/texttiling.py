@@ -255,3 +255,28 @@ def getGapBoundaries(lexScores):
         if depthScore >= cutoff:
             boundaries.append(i)
     return boundaries
+
+def getBoundaries(lexScores, pLocs, w):
+    """
+    Get locations of paragraphs where subtopic boundaries occur
+    Args:
+        lexScores: list of lexical scores for each token-sequence gap
+        pLocs: list of token indices such that paragraph breaks occur after them
+        w: number of tokens to be grouped into each token-sequence
+    Returns:
+        A sorted list of unique paragraph locations (measured in terms of token
+        indices) after which a subtopic boundary occurs.
+    Raises:
+        None
+    """
+    # do not allow duplicates of boundaries
+    parBoundaries = set()
+    # convert boundaries from gap indices to token indices
+    gapBoundaries = getGapBoundaries(lexScores)
+    tokBoundaries = [w * (gap + 1) for gap in gapBoundaries]
+
+    # convert raw token boundary index to closest index where paragraph occurs
+    for i in xrange(len(tokBoundaries)):
+        parBoundaries.add(min(pLocs, key=lambda b: abs(b - tokBoundaries[i])))
+
+    return sorted(list(parBoundaries))
