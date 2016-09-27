@@ -367,3 +367,24 @@ def run(outfile, data, w, k):
     num_pgraphs = len(paragraph_breaks)
     boundaries1 = getBoundaries(scores1, paragraph_breaks, w)
     writeTextTiles(boundaries1, paragraph_breaks, text, "outfile.txt")
+
+def main(argv):
+
+    w_start = 20
+    w_end = 20
+    k_start = 10
+    k_end = 10
+    increment = 2
+
+    # empty the file
+
+    data = "some data here ..."
+
+    # run texttiling for different values of w and k.
+    for w in xrange(w_start, w_end+1, increment):
+        for k in xrange(k_start, k_end+1, increment):  
+            print "w = " + str(w) + ", k = " + str(k)
+            run_tests("outfile"+str(w-w_start)+".txt", data, w, k)
+
+if __name__ == "__main__":
+  main(sys.argv)
