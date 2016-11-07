@@ -325,6 +325,51 @@ class TextTiling(object):
           
         return splitIndices
 
+    def writeTextTiles1(self, boundaries, pLocs, inputText, outfile):
+        """
+        Get TextTiles in the input text based on paragraph locations and boundaries.
+        Args:
+            boundaries: list of paragraph locations where subtopic boundaries occur
+            pLocs: list of token indices such that paragraph breaks occur after them
+            inputText: a string of the initial (unsanitized) text
+        Returns:
+            A list of indicies of section breaks. Index i will be in this list if
+            there is a topic break after the ith paragraph. 
+        Raises:
+            None
+        """
+        textTiles = []
+        paragraphs = [s.strip() for s in inputText.splitlines()]
+
+        paragraphs = [s for s in paragraphs if s != ""]
+
+        print len(paragraphs)
+        #print paragraphs
+        print len(pLocs)
+
+        #assert len(paragraphs) == len(pLocs) + 1
+        splitIndices = [pLocs.index(b) + 1 for b in boundaries]
+
+        startIndex = 0
+        # append section between subtopic boundaries as new TextTile
+        for i in splitIndices:
+            textTiles.append(paragraphs[startIndex:i])
+            startIndex = i
+        # tack on remaining paragraphs in last subtopic
+        textTiles.append(paragraphs[startIndex:])
+        
+        output = []
+
+        f = open(outfile, 'w')
+        for i, textTile in enumerate(textTiles):
+            out_string = ''
+            for paragraph in textTile:
+                out_string += ' '
+                out_string += paragraph
+            output.append(out_string)
+          
+        return output
+
     def run(self, outfile, data, w, k):
         """
         Helper function that runs the TextTiling on the entire corpus
@@ -341,8 +386,8 @@ class TextTiling(object):
         Raises:
             None.
         """
-        out = open(outfile, 'a')
-        out.write("w = " + str(w) + ", k = " + str(k) + "\n")
+        #out = open(outfile, 'a')
+        #out.write("w = " + str(w) + ", k = " + str(k) + "\n")
 
         counter = 0
         print "processing input " 
@@ -351,22 +396,21 @@ class TextTiling(object):
 
         # 1) do our block comparison and 2) vocabulary introduction
         token_sequences, unique_tokens, paragraph_breaks = self.tokenize_string(text, w)
-        out1 = open("outfile1.txt", 'a')
-        for tile in token_sequences:
-            out1.write("\n----------------------------------------------------------------------------------------\n")
-            out1.write("\nNEW SEQUENCE\n")
-            for tile1 in tile:
-                out1.write(tile1)
-                out1.write(" ; ")
-                
+                        
         scores1 = self.block_score(k, token_sequences, unique_tokens)
-        scores2 = self.vocabulary_introduction(token_sequences, w)
+        #scores2 = self.vocabulary_introduction(token_sequences, w)
+        print scores1
+        print "hi"
+        print paragraph_breaks
+        print "hi"
         boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
-        boundaries2 = self.getBoundaries(scores2, paragraph_breaks, w)
-        pred_breaks1 = self.writeTextTiles(boundaries1, paragraph_breaks, text, outfile)
-        pred_breaks2 = self.writeTextTiles(boundaries2, paragraph_breaks, text, outfile)
+        #boundaries2 = self.getBoundaries(scores2, paragraph_breaks, w)
+        #pred_breaks1 = self.writeTextTiles(boundaries1, paragraph_breaks, text, outfile)
+        #pred_breaks2 = self.writeTextTiles(boundaries2, paragraph_breaks, text, outfile)
 
-        num_pgraphs = len(paragraph_breaks)
-        boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
-        self.writeTextTiles(boundaries1, paragraph_breaks, text, "outfile.txt")
+        #num_pgraphs = len(paragraph_breaks)
+        #boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
+        #self.writeTextTiles(boundaries1, paragraph_breaks, text, "outfile.txt")
+
+        return self.writeTextTiles1(boundaries1, paragraph_breaks, text, "outfile.txt")
 
