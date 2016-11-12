@@ -1,5 +1,20 @@
 #!/usr/bin/python
-
+# *****************************************************************************
+#
+# Author: Aditya Chatterjee
+#
+# Interweb/ contacts: GitHub.com/AdiChat
+#                     Email: aditianhacker@gmail.com
+#
+# Implementation of the ClusterRank Algorithm
+#
+# MIT License
+#
+# To keep up with the latest version, consult repository: GitHub.com/AdiChat/Read-Less
+#
+# To get an overview of the ClusterRank Algorithm, consult wiki: Github.com/AdiChat/Read-Less/wiki/ClusterRank
+#
+# *****************************************************************************
 import io
 import nltk
 import itertools
