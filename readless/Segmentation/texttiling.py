@@ -32,7 +32,10 @@ from nltk.corpus import brown
 lemmatizer = WordNetLemmatizer()
 stop_words = stopwords.words('english')
 
-class TextTiling(object):
+class TextTiling():
+
+    def __init__(self):
+        print "TextTiling: Segmenting textual data"
 
     def tokenize_string(self, input_string, w):
         '''
@@ -283,7 +286,7 @@ class TextTiling(object):
 
         return sorted(list(parBoundaries))
 
-    def writeTextTiles(self, boundaries, pLocs, inputText, outfile):
+    def segmentText(self, boundaries, pLocs, inputText):
         """
         Get TextTiles in the input text based on paragraph locations and boundaries.
         Args:
@@ -291,8 +294,7 @@ class TextTiling(object):
             pLocs: list of token indices such that paragraph breaks occur after them
             inputText: a string of the initial (unsanitized) text
         Returns:
-            A list of indicies of section breaks. Index i will be in this list if
-            there is a topic break after the ith paragraph. 
+            output: A list of segmented text
         Raises:
             None
         """
@@ -300,52 +302,6 @@ class TextTiling(object):
         paragraphs = [s.strip() for s in inputText.splitlines()]
 
         paragraphs = [s for s in paragraphs if s != ""]
-
-        print len(paragraphs)
-        #print paragraphs
-        print len(pLocs)
-
-        #assert len(paragraphs) == len(pLocs) + 1
-        splitIndices = [pLocs.index(b) + 1 for b in boundaries]
-
-        startIndex = 0
-        # append section between subtopic boundaries as new TextTile
-        for i in splitIndices:
-            textTiles.append(paragraphs[startIndex:i])
-            startIndex = i
-        # tack on remaining paragraphs in last subtopic
-        textTiles.append(paragraphs[startIndex:])
-        
-        f = open(outfile, 'w')
-        for i, textTile in enumerate(textTiles):
-            f.write('SUB-TOPIC:' + str(i+1) + '\n')
-            f.write('----------\n\n')
-            for paragraph in textTile:
-                f.write(paragraph + '\n\n')
-          
-        return splitIndices
-
-    def writeTextTiles1(self, boundaries, pLocs, inputText, outfile):
-        """
-        Get TextTiles in the input text based on paragraph locations and boundaries.
-        Args:
-            boundaries: list of paragraph locations where subtopic boundaries occur
-            pLocs: list of token indices such that paragraph breaks occur after them
-            inputText: a string of the initial (unsanitized) text
-        Returns:
-            A list of indicies of section breaks. Index i will be in this list if
-            there is a topic break after the ith paragraph. 
-        Raises:
-            None
-        """
-        textTiles = []
-        paragraphs = [s.strip() for s in inputText.splitlines()]
-
-        paragraphs = [s for s in paragraphs if s != ""]
-
-        print len(paragraphs)
-        #print paragraphs
-        print len(pLocs)
 
         #assert len(paragraphs) == len(pLocs) + 1
         splitIndices = [pLocs.index(b) + 1 for b in boundaries]
@@ -360,7 +316,6 @@ class TextTiling(object):
         
         output = []
 
-        f = open(outfile, 'w')
         for i, textTile in enumerate(textTiles):
             out_string = ''
             for paragraph in textTile:
@@ -370,47 +325,33 @@ class TextTiling(object):
           
         return output
 
-    def run(self, outfile, data, w, k):
+    def run(self, data, w=4, k=10, select_segment=2):
         """
         Helper function that runs the TextTiling on the entire corpus
         for a given set of parameters w and k, and writes the average 
-        statistics to outfile. The corpus is assumed to live in the "articles"
-        directory, which must be in the same folder as this python file.
+        statistics to outfile. 
         Args:
-            outfile: the name of the output file
-            w: pseudo-sentence size.
-            k: length of window as defined in the paper.
+            w: pseudo-sentence size; default value taken as 4
+            k: length of window; default value taken as 10
             data: input string
+            select_segment: (0,1) indicates whether to use block comparison or vocabulary introduction
         Returns:
-            None
+            segmented text
         Raises:
             None.
         """
-        #out = open(outfile, 'a')
-        #out.write("w = " + str(w) + ", k = " + str(k) + "\n")
-
-        counter = 0
         print "processing input " 
-                   
-        text = data;
+        text = ""
+        text = data
 
         # 1) do our block comparison and 2) vocabulary introduction
         token_sequences, unique_tokens, paragraph_breaks = self.tokenize_string(text, w)
-                        
-        scores1 = self.block_score(k, token_sequences, unique_tokens)
-        #scores2 = self.vocabulary_introduction(token_sequences, w)
-        print scores1
-        print "hi"
-        print paragraph_breaks
-        print "hi"
-        boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
-        #boundaries2 = self.getBoundaries(scores2, paragraph_breaks, w)
-        #pred_breaks1 = self.writeTextTiles(boundaries1, paragraph_breaks, text, outfile)
-        #pred_breaks2 = self.writeTextTiles(boundaries2, paragraph_breaks, text, outfile)
-
-        #num_pgraphs = len(paragraph_breaks)
-        #boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
-        #self.writeTextTiles(boundaries1, paragraph_breaks, text, "outfile.txt")
-
-        return self.writeTextTiles1(boundaries1, paragraph_breaks, text, "outfile.txt")
-
+        
+        if select_segment==1:
+            scores1 = self.block_score(k, token_sequences, unique_tokens)
+            boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
+            return self.segmentText(boundaries2, paragraph_breaks, text, "outfile.txt")
+        elif select_segment==2:
+            scores2 = self.vocabulary_introduction(token_sequences, w)
+            boundaries2 = self.getBoundaries(scores2, paragraph_breaks, w)
+            return self.segmentText(boundaries2, paragraph_breaks, text, "outfile.txt")
