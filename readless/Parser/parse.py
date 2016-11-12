@@ -1,5 +1,22 @@
 #!/usr/bin/python
-
+# *****************************************************************************
+#
+# Author: Aditya Chatterjee
+#
+# Interweb/ contacts: GitHub.com/AdiChat
+#                     Email: aditianhacker@gmail.com
+#
+# Helper class for reading and parsing textual data
+#
+# MIT License
+#
+# To keep up with the latest version, consult repository: GitHub.com/AdiChat/Read-Less
+#
+# To get an overview of this module, consult wiki: Github.com/AdiChat/Read-Less/wiki
+#
+# Dependencies of Parse: glob, io
+#
+# *****************************************************************************
 import glob
 import io
 
@@ -26,11 +43,31 @@ class Parse():
         return text
 
     def writeDataToFile(self, pathToFile, data):
+        '''
+        Write textual data to file
+        Arguments:
+            pathToFile: path of the file to which data is to be appended
+            data: the textual data to be written within the file
+        Returns:
+            Nothing
+        Raises:
+            Nothing
+        '''
         File = io.open(pathToFile, 'w')
         File.write(data)
         File.close()
 
     def writeListDataToFile(self, pathToFile, Listdata):
+        '''
+        Write list of textual data to a file
+        Arguments:
+            pathToFile: path of the file to which data is to be appended
+            Listdata: the list of textual data to be written within the file
+        Returns:
+            Nothing
+        Raises:
+            Nothing
+        '''
         File = io.open(pathToFile, 'a')
         for item in Listdata:
             File.write(item)
