@@ -30,6 +30,16 @@ class ClusterRank():
 		print "Cluster Rank"
 
 	def lDistance(self, firstString, secondString):
+		'''
+		Finds the levenshtein distance between 2 strings
+		Arguments:
+			firstString: first input string
+			secondString: second input string
+		Returns:
+			the levenshtein distance between the two input strings
+		Raises:
+			None
+		'''
 	    if len(firstString) > len(secondString):
 	        firstString, secondString = secondString, firstString
 	    distances = range(len(firstString) + 1)
@@ -44,11 +54,19 @@ class ClusterRank():
 	    return distances[-1]
 
 	def buildGraph(self, nodes):
-	    gr = nx.Graph() #initialize an undirected graph
+		'''
+		Builds the graph with a token of words as a node
+		Arguments:
+			nodes: list of nodes/ token of words
+		Returns:
+			the graph
+		Raises:
+			None
+		'''
+	    gr = nx.Graph() 
 	    gr.add_nodes_from(nodes)
 	    nodePairs = list(itertools.combinations(nodes, 2))
 
-	    #add edges to the graph (weighted by Levenshtein distance)
 	    for pair in nodePairs:
 	        firstString = pair[0]
 	        secondString = pair[1]
@@ -58,6 +76,15 @@ class ClusterRank():
 	    return gr
 
 	def extractSentences(self, text):
+		'''
+		Extracts sentences from the graph using pagerank
+		Arguments:
+			text: input textual data
+		Returns:
+			summary: a bunch of sentences
+		Raises:
+			None
+		'''
 	    sentenceTokens = text
 	    print "Building graph"
 	    graph = self.buildGraph(sentenceTokens)
