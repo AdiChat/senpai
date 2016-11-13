@@ -107,6 +107,9 @@ class ClusterRank():
 	    return summary
 
 	def summarize(self, data):
+		'''
+		Summarizes data
+		'''
 		t = texttiling.TextTiling()
 		text = t.run(data)
 		return self.extractSentences(text)

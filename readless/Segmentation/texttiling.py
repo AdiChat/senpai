@@ -350,8 +350,13 @@ class TextTiling():
         if select_segment==1:
             scores1 = self.block_score(k, token_sequences, unique_tokens)
             boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
-            return self.segmentText(boundaries2, paragraph_breaks, text, "outfile.txt")
+            return self.segmentText(boundaries2, paragraph_breaks, text)
         elif select_segment==2:
             scores2 = self.vocabulary_introduction(token_sequences, w)
             boundaries2 = self.getBoundaries(scores2, paragraph_breaks, w)
-            return self.segmentText(boundaries2, paragraph_breaks, text, "outfile.txt")
+            return self.segmentText(boundaries2, paragraph_breaks, text)
+
+    def segmentFile(self, pathToFile)
+        p = parse.Parse()
+        data = p.dataFromFile(pathToFile)
+        return self.run(data)
