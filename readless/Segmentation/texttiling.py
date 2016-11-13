@@ -28,6 +28,7 @@ from collections import Counter
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.corpus import brown
+from ..Parse import parse
 
 lemmatizer = WordNetLemmatizer()
 stop_words = stopwords.words('english')
@@ -46,12 +47,10 @@ class TextTiling():
             2) Remove stop words 
             3) Perform lemmatization 
             4) Group the tokens into groups of size w, which represents the 
-               pseudo-sentence size.
-     
+               pseudo-sentence size.     
         Arguments :
             input_string : A string to tokenize
             w: pseudo-sentence size
-
         Returns:
             A tuple (token_sequences, unique_tokens, paragraph_breaks), where:
                 token_sequences: A list of token sequences, each w tokens long.
@@ -108,13 +107,10 @@ class TextTiling():
       """
       Computes lexical score for the gap between pairs of text sequences.
       It starts assigning scores after the first sequence.
-
-      Args:
+      Arguments:
         w: size of a sequence
-
       Returns:
         list of scores where scores[i] corresponds to the score at gap position i that is the score after sequence i.
-
       Raises:
         None
       """
@@ -150,7 +146,7 @@ class TextTiling():
     def block_score(self, k, token_sequence, unique_tokens):
         """
         Computes the similarity scores for adjacent blocks of token sequences.
-        Args:
+        Arguments:
             k: the block size
             token_seq_ls: list of token sequences, each of the same length
             unique_tokens: A set of all unique words used in the text.
@@ -195,14 +191,11 @@ class TextTiling():
     def getDepthCutoff(self, lexScores, liberal=True):
         """
         Compute the cutoff for depth scores above which gaps are considered boundaries.
-
-        Args:
+        Arguments:
             lexScores: list of lexical scores for each token-sequence gap
             liberal: True IFF liberal criterion will be used for determining cutoff
-
         Returns:
             A float representing the depth cutoff score
-
         Raises:
             None
         """
@@ -213,7 +206,7 @@ class TextTiling():
     def getDepthSideScore(self, lexScores, currentGap, left):
         """
         Computes the depth score for the specified side of the specified gap
-        Args:
+        Arguments:
             lexScores: list of lexical scores for each token-sequence gap
             currentGap: index of gap for which to get depth side score
             left: True IFF the depth score for left side is desired
@@ -240,7 +233,7 @@ class TextTiling():
     def getGapBoundaries(self, lexScores):
         """
         Get the gaps to be considered as boundaries based on gap lexical scores
-        Args:
+        Arguments:
             lexScores: list of lexical scores for each token-sequence gap
         Returns:
             A list of gaps (identified by index) that are considered boundaries.
@@ -264,7 +257,7 @@ class TextTiling():
     def getBoundaries(self, lexScores, pLocs, w):
         """
         Get locations of paragraphs where subtopic boundaries occur
-        Args:
+        Arguments:
             lexScores: list of lexical scores for each token-sequence gap
             pLocs: list of token indices such that paragraph breaks occur after them
             w: number of tokens to be grouped into each token-sequence
@@ -289,7 +282,7 @@ class TextTiling():
     def segmentText(self, boundaries, pLocs, inputText):
         """
         Get TextTiles in the input text based on paragraph locations and boundaries.
-        Args:
+        Arguments:
             boundaries: list of paragraph locations where subtopic boundaries occur
             pLocs: list of token indices such that paragraph breaks occur after them
             inputText: a string of the initial (unsanitized) text
@@ -356,7 +349,16 @@ class TextTiling():
             boundaries2 = self.getBoundaries(scores2, paragraph_breaks, w)
             return self.segmentText(boundaries2, paragraph_breaks, text)
 
-    def segmentFile(self, pathToFile)
+    def segmentFile(self, pathToFile):
+        '''
+        Helper function to segment a textual data
+        Arguments:
+            pathToFile: path to the file containing the textual data to be segmented
+        Returns:
+            segmented text
+        Raises:
+            None
+        '''
         p = parse.Parse()
         data = p.dataFromFile(pathToFile)
         return self.run(data)

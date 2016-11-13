@@ -108,13 +108,28 @@ class ClusterRank():
 
 	def summarize(self, data):
 		'''
-		Summarizes data
+		Summarizes a text data
+		Arguments:
+			data: input textual data
+		Returns:
+			The summary of input file
+		Raises:
+			None
 		'''
 		t = texttiling.TextTiling()
 		text = t.run(data)
 		return self.extractSentences(text)
 
 	def summarizeFile(self, pathToFile):
+		'''
+		Summarizes a document
+		Arguments:
+			pathToFile: path to the file to be summarized
+		Returns:
+			The summary of the input file
+		Raises:
+			None
+		'''
 		p = parse.Parse()
 		t = texttiling.TextTiling()
 		data = p.dataFromFile(pathToFile)
