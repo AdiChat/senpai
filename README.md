@@ -54,11 +54,11 @@ pathToFile = "C:/conversation.in"
 segmentedText = segmentation.segmentFile(pathToFile)
 ```
 
-For a detailed list of other API functionalities, see [**ReadLess Documentation**](https://github.com/AdiChat/Read-Less/blob/master/Documentation.md).
+For a detailed list of other API functionalities, see [**ReadLess Documentation**](https://github.com/AdiChat/Read-Less/tree/master/documentation).
 
 ## Contributions 📂 
 
-All contributions are welcomed. This module is in development and there are several scopes of improvement. Tests are to be implemented along with other Summarization algorithms with support for web page summarization. For upcoming features, see [Future developments]().
+All contributions are welcomed. This module is in development and there are several scopes of improvement. Tests are to be implemented along with other Summarization algorithms with support for web page summarization. For upcoming features, see [Future developments](https://github.com/AdiChat/Read-Less/wiki/Future-Developments).
 
 ### 👮 [LICENSE](https://github.com/AdiChat/Read-Less/blob/master/LICENSE)
 
