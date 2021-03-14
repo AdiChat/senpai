@@ -23,7 +23,7 @@ import io
 class Parse():
 
     def __init__(self):
-        print "Parser for textual data"
+        print("Parser for textual data")
 
     def dataFromFile(self, path):
         '''
@@ -33,41 +33,21 @@ class Parse():
         Returns:
             data: a string containing data of the file
         '''
-        print "Processing input " 
+        print("Processing input ")
         text = ""
         input_files = glob.glob(path)
         for file in input_files:
             with open(file, 'r') as f:
                 text = f.read()
-        print "Processing completed"
+        print("Processing completed")
         return text
 
     def writeDataToFile(self, pathToFile, data):
-        '''
-        Write textual data to file
-        Arguments:
-            pathToFile: path of the file to which data is to be appended
-            data: the textual data to be written within the file
-        Returns:
-            Nothing
-        Raises:
-            Nothing
-        '''
         File = io.open(pathToFile, 'w')
         File.write(data)
         File.close()
 
     def writeListDataToFile(self, pathToFile, Listdata):
-        '''
-        Write list of textual data to a file
-        Arguments:
-            pathToFile: path of the file to which data is to be appended
-            Listdata: the list of textual data to be written within the file
-        Returns:
-            Nothing
-        Raises:
-            Nothing
-        '''
         File = io.open(pathToFile, 'a')
         for item in Listdata:
             File.write(item)
@@ -81,7 +61,7 @@ class Parse():
         Returns:
             data: a list containing data of each file
         '''
-        print "Processing input " 
+        print("Processing input ")
         text = ""
         data = []
         counter = -1
@@ -91,5 +71,5 @@ class Parse():
             with open(file, 'r') as f:
                 text = f.read()
             data.append(text)
-        print "Processing completed"
+        print("Processing completed")
         return data
