@@ -29,14 +29,18 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.corpus import brown
 from ..Parse import parse
+import nltk
 
+nltk.download('stopwords')
+nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
 stop_words = stopwords.words('english')
+
 
 class TextTiling():
 
     def __init__(self):
-        print "TextTiling: Segmenting textual data"
+        print("TextTiling: Segmenting textual data")
 
     def tokenize_string(self, input_string, w):
         '''
@@ -47,10 +51,12 @@ class TextTiling():
             2) Remove stop words 
             3) Perform lemmatization 
             4) Group the tokens into groups of size w, which represents the 
-               pseudo-sentence size.     
+               pseudo-sentence size.
+     
         Arguments :
             input_string : A string to tokenize
             w: pseudo-sentence size
+
         Returns:
             A tuple (token_sequences, unique_tokens, paragraph_breaks), where:
                 token_sequences: A list of token sequences, each w tokens long.
@@ -63,14 +69,14 @@ class TextTiling():
         paragraph_breaks = []
         token_count = 0
         token_sequences = []
-        index = 0  
-        count = Counter() 
+        index = 0
+        count = Counter()
 
         # split text into paragraphs
         paragraphs = [s.strip() for s in input_string.splitlines()]
         paragraphs = [s for s in paragraphs if s != ""]
 
-        pattern = r"((?:[a-z]+(?:[-'][a-z]+)*))" # For hyphen seperated words
+        pattern = r"((?:[a-z]+(?:[-'][a-z]+)*))"  # For hyphen seperated words
 
         # Count number of tokens - words and words seperated by hyphen
         for paragraph in paragraphs:
@@ -82,7 +88,7 @@ class TextTiling():
         paragraph_breaks = paragraph_breaks[:-1]
 
         # split tokens into groups of size w
-        for i in xrange(len(tokens)):
+        for i in range(len(tokens)):
             count[tokens[i]] += 1
             index += 1
             if index % w == 0:
@@ -91,15 +97,18 @@ class TextTiling():
                 index = 0
 
         # remove stop words from each sequence
-        for i in xrange(len(token_sequences)):
-            token_sequences[i] = [lemmatizer.lemmatize(word) for word in token_sequences[i] if word not in stop_words]
+        for i in range(len(token_sequences)):
+            token_sequences[i] = [lemmatizer.lemmatize(
+                word) for word in token_sequences[i] if word not in stop_words]
 
         # lemmatize the words in each sequence
-        for i in xrange(len(token_sequences)):
-            token_sequences[i] = [lemmatizer.lemmatize(word) for word in token_sequences[i]]
+        for i in range(len(token_sequences)):
+            token_sequences[i] = [lemmatizer.lemmatize(
+                word) for word in token_sequences[i]]
 
         # get unique tokens
-        unique_tokens = [word for word in set(tokens) if word not in stop_words] 
+        unique_tokens = [word for word in set(
+            tokens) if word not in stop_words]
 
         return (token_sequences, unique_tokens, paragraph_breaks)
 
@@ -107,10 +116,13 @@ class TextTiling():
       """
       Computes lexical score for the gap between pairs of text sequences.
       It starts assigning scores after the first sequence.
-      Arguments:
+
+      Args:
         w: size of a sequence
+
       Returns:
         list of scores where scores[i] corresponds to the score at gap position i that is the score after sequence i.
+
       Raises:
         None
       """
@@ -122,7 +134,7 @@ class TextTiling():
       scores = []
       w2 = w * 2
 
-      for i in xrange(1,len(token_sequences)-1):
+      for i in range(1, len(token_sequences)-1):
         # new words to the left of the gap
         new_words_1 = set(token_sequences[i-1]).difference(new_words1)
 
@@ -138,15 +150,15 @@ class TextTiling():
         new_words2 = new_words2.union(token_sequences[i+1])
 
       # special case on last element
-      b1 = len(set(token_sequences[len(token_sequences)-1]).difference(new_words1))
+      b1 = len(
+          set(token_sequences[len(token_sequences)-1]).difference(new_words1))
       scores.append(b1/w2)
       return scores
-
 
     def block_score(self, k, token_sequence, unique_tokens):
         """
         Computes the similarity scores for adjacent blocks of token sequences.
-        Arguments:
+        Args:
             k: the block size
             token_seq_ls: list of token sequences, each of the same length
             unique_tokens: A set of all unique words used in the text.
@@ -162,20 +174,23 @@ class TextTiling():
         # calculate score for each gap with at least k token sequences on each side
         for gap_index in range(1, len(token_sequence)):
             current_k = min(gap_index, k, len(token_sequence) - gap_index)
-            before_block = token_sequence[gap_index - current_k : gap_index]
-            after_block = token_sequence[gap_index : gap_index + current_k]
-            
-            for j in xrange(current_k):
-                before_count = before_count + Counter(token_sequence[gap_index + j - current_k])
-                after_count = after_count + Counter(token_sequence[gap_index + j])
-            
+            before_block = token_sequence[gap_index - current_k: gap_index]
+            after_block = token_sequence[gap_index: gap_index + current_k]
+
+            for j in range(current_k):
+                before_count = before_count + \
+                    Counter(token_sequence[gap_index + j - current_k])
+                after_count = after_count + \
+                    Counter(token_sequence[gap_index + j])
+
             # calculate and store score
             numerator = 0.0
             before_sum = 0.0
             after_sum = 0.0
 
             for token in unique_tokens:
-                numerator = numerator + (before_count[token] * after_count[token])
+                numerator = numerator + \
+                    (before_count[token] * after_count[token])
                 before_sum = before_sum + (before_count[token] ** 2)
                 after_sum = after_sum + (after_count[token] ** 2)
 
@@ -191,11 +206,14 @@ class TextTiling():
     def getDepthCutoff(self, lexScores, liberal=True):
         """
         Compute the cutoff for depth scores above which gaps are considered boundaries.
-        Arguments:
+
+        Args:
             lexScores: list of lexical scores for each token-sequence gap
             liberal: True IFF liberal criterion will be used for determining cutoff
+
         Returns:
             A float representing the depth cutoff score
+
         Raises:
             None
         """
@@ -206,7 +224,7 @@ class TextTiling():
     def getDepthSideScore(self, lexScores, currentGap, left):
         """
         Computes the depth score for the specified side of the specified gap
-        Arguments:
+        Args:
             lexScores: list of lexical scores for each token-sequence gap
             currentGap: index of gap for which to get depth side score
             left: True IFF the depth score for left side is desired
@@ -233,7 +251,7 @@ class TextTiling():
     def getGapBoundaries(self, lexScores):
         """
         Get the gaps to be considered as boundaries based on gap lexical scores
-        Arguments:
+        Args:
             lexScores: list of lexical scores for each token-sequence gap
         Returns:
             A list of gaps (identified by index) that are considered boundaries.
@@ -257,7 +275,7 @@ class TextTiling():
     def getBoundaries(self, lexScores, pLocs, w):
         """
         Get locations of paragraphs where subtopic boundaries occur
-        Arguments:
+        Args:
             lexScores: list of lexical scores for each token-sequence gap
             pLocs: list of token indices such that paragraph breaks occur after them
             w: number of tokens to be grouped into each token-sequence
@@ -274,15 +292,16 @@ class TextTiling():
         tokBoundaries = [w * (gap + 1) for gap in gapBoundaries]
 
         # convert raw token boundary index to closest index where paragraph occurs
-        for i in xrange(len(tokBoundaries)):
-            parBoundaries.add(min(pLocs, key=lambda b: abs(b - tokBoundaries[i])))
+        for i in range(len(tokBoundaries)):
+            parBoundaries.add(
+                min(pLocs, key=lambda b: abs(b - tokBoundaries[i])))
 
         return sorted(list(parBoundaries))
 
     def segmentText(self, boundaries, pLocs, inputText):
         """
         Get TextTiles in the input text based on paragraph locations and boundaries.
-        Arguments:
+        Args:
             boundaries: list of paragraph locations where subtopic boundaries occur
             pLocs: list of token indices such that paragraph breaks occur after them
             inputText: a string of the initial (unsanitized) text
@@ -306,7 +325,7 @@ class TextTiling():
             startIndex = i
         # tack on remaining paragraphs in last subtopic
         textTiles.append(paragraphs[startIndex:])
-        
+
         output = []
 
         for i, textTile in enumerate(textTiles):
@@ -315,7 +334,7 @@ class TextTiling():
                 out_string += ' '
                 out_string += paragraph
             output.append(out_string)
-          
+
         return output
 
     def run(self, data, w=4, k=10, select_segment=2):
@@ -333,32 +352,24 @@ class TextTiling():
         Raises:
             None.
         """
-        print "processing input " 
+        print("processing input ")
         text = ""
         text = data
 
         # 1) do our block comparison and 2) vocabulary introduction
-        token_sequences, unique_tokens, paragraph_breaks = self.tokenize_string(text, w)
-        
-        if select_segment==1:
+        token_sequences, unique_tokens, paragraph_breaks = self.tokenize_string(
+            text, w)
+
+        if select_segment == 1:
             scores1 = self.block_score(k, token_sequences, unique_tokens)
             boundaries1 = self.getBoundaries(scores1, paragraph_breaks, w)
             return self.segmentText(boundaries2, paragraph_breaks, text)
-        elif select_segment==2:
+        elif select_segment == 2:
             scores2 = self.vocabulary_introduction(token_sequences, w)
             boundaries2 = self.getBoundaries(scores2, paragraph_breaks, w)
             return self.segmentText(boundaries2, paragraph_breaks, text)
 
     def segmentFile(self, pathToFile):
-        '''
-        Helper function to segment a textual data
-        Arguments:
-            pathToFile: path to the file containing the textual data to be segmented
-        Returns:
-            segmented text
-        Raises:
-            None
-        '''
         p = parse.Parse()
         data = p.dataFromFile(pathToFile)
         return self.run(data)
